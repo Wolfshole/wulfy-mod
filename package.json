@@ -1,0 +1,20 @@
+{
+  "name": "wulfy-mod",
+  "version": "0.0.1-beta",
+  "description": "",
+  "license": "ISC",
+  "author": "UEBlackWulfGHG",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "deploy": "node Deploy-Commands"
+  },
+  "dependencies": {
+    "discord.js": "^14.27.0",
+    "dotenv": "^18.0.1",
+    "mysql2": "^3.24.4",
+    "nodemon": "^3.1.14"
+  }
+}
