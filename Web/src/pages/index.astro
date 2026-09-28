@@ -1,0 +1,64 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LandingNavbar from "../components/LandingNavbar.astro";
+import Footer from "../components/Footer.astro";
+
+import Hero from "../components/landing/Hero.astro";
+import Stats from "../components/landing/Stats.astro";
+import Features from "../components/landing/Features.astro";
+import FeatureDetail from "../components/landing/FeatureDetail.astro";
+import WhyUs from "../components/landing/WhyUs.astro";
+import FAQ from "../components/landing/FAQ.astro";
+import CTA from "../components/landing/CTA.astro";
+---
+
+<BaseLayout title="Wulf Mod Bot – Moderation für deinen Discord-Server">
+    <LandingNavbar />
+
+    <Hero />
+    <Stats />
+    <Features />
+
+    <FeatureDetail
+        title="Willkommens-Nachrichten, die begeistern"
+        description="Gestalte individuelle Embeds mit Bildern, Farben und Texten. Neue Mitglieder fühlen sich sofort willkommen."
+        bullets={[
+            "Individuelle Embeds mit Bildern",
+            "Auto-Rollen bei Beitritt",
+            "Direktnachrichten an neue User",
+            "Live-Vorschau im Dashboard"
+        ]}
+        emoji="👋"
+    />
+
+    <FeatureDetail
+        title="Moderation mit voller Kontrolle"
+        description="Verwarne, banne oder kicke User mit einem Klick. Alle Aktionen werden protokolliert und sind im Dashboard einsehbar."
+        bullets={[
+            "Warns, Bans, Kicks, Timeouts",
+            "Vollständiges Log-System",
+            "Rollenbasierte Berechtigungen",
+            "Auto-Mod bei Regelverstößen"
+        ]}
+        reverse={true}
+        emoji="🛡️"
+    />
+
+    <FeatureDetail
+        title="Support-Tickets leicht gemacht"
+        description="Erstelle private Kanäle für Support-Anfragen. User können Tickets erstellen, dein Team bearbeitet sie zentral."
+        bullets={[
+            "Private Ticket-Kanäle",
+            "Kategorien für Anliegen",
+            "Automatische Archivierung",
+            "Statistiken zu Bearbeitungszeiten"
+        ]}
+        emoji="🎫"
+    />
+
+    <WhyUs />
+    <FAQ />
+    <CTA />
+
+    <Footer variant="landing" />
+</BaseLayout>

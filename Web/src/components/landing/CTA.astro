@@ -1,0 +1,51 @@
+---
+import { getSession } from "../../lib/auth";
+
+const session = getSession(Astro.cookies);
+const isLoggedIn = !!session;
+const ctaHref = isLoggedIn ? "/dashboard" : "/login";
+const ctaLabel = isLoggedIn ? "Zum Dashboard →" : "Jetzt starten →";
+---
+
+<section class="cta">
+    <h2>Bereit, deinen Server zu moderieren?</h2>
+    <p>Starte jetzt kostenlos mit Wulf Mod Bot – in unter einer Minute eingerichtet.</p>
+    <a href={ctaHref} class="btn-primary">{ctaLabel}</a>
+</section>
+
+<style>
+    .cta {
+        text-align: center;
+        padding: 5rem 2rem;
+        max-width: 700px;
+        margin: 0 auto;
+        background: radial-gradient(circle at center, rgba(37, 99, 235, 0.18), transparent 70%);
+        border-radius: 20px;
+    }
+
+    .cta h2 {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .cta p {
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 0.85rem 1.75rem;
+        background: var(--accent);
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 0 24px var(--accent-glow);
+        transition: all 0.15s;
+    }
+
+    .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+</style>

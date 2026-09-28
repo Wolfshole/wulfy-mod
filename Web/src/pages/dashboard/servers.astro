@@ -1,0 +1,150 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Logo from "../../components/Logo.astro";
+import { getSession } from "../../lib/auth";
+import { getUserGuilds } from "../../lib/discord";
+
+const session = getSession(Astro.cookies);
+if (!session) return Astro.redirect('/login');
+
+let guilds = [];
+try {
+    guilds = await getUserGuilds(session.accessToken);
+} catch (err) {
+    console.error(err);
+}
+---
+
+<BaseLayout title="Server auswählen – Wulf Mod Bot">
+    <div class="page">
+        <header>
+            <Logo size={40} />
+            <a href="/api/auth/logout">Logout</a>
+        </header>
+
+        <main>
+            <h1>Wähle einen Server</h1>
+            <p>Wähle den Server aus, den du mit Wulf verwalten möchtest.</p>
+
+            {guilds.length === 0 ? (
+                <div class="empty">
+                    <p>Du hast keine Server, auf denen du Admin bist.</p>
+                    <a href="https://discord.com/oauth2/authorize?client_id=DEINE_CLIENT_ID&scope=bot&permissions=8" target="_blank" class="btn-primary">
+                        Bot einladen
+                    </a>
+                </div>
+            ) : (
+                <div class="grid">
+                    {guilds.map(guild => {
+                        const iconUrl = guild.icon
+                            ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+                            : `https://cdn.discordapp.com/embed/avatars/0.png`;
+                        return (
+                            <button class="guild-card" data-guild-id={guild.id}>
+                                <img src={iconUrl} alt={guild.name} />
+                                <span>{guild.name}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+        </main>
+    </div>
+
+    <script>
+        document.querySelectorAll('.guild-card').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const guildId = btn.dataset.guildId;
+                const res = await fetch('/api/select-guild', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guildId })
+                });
+                if (res.ok) {
+                    window.location.href = '/dashboard';
+                }
+            });
+        });
+    </script>
+</BaseLayout>
+
+<style>
+    .page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+    }
+
+    header a {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    main > p {
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    .guild-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+        color: var(--text);
+        font-size: 0.95rem;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .guild-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+    }
+
+    .guild-card img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+    }
+
+    .empty {
+        text-align: center;
+        padding: 3rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.75rem 1.5rem;
+        background: var(--accent);
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+</style>

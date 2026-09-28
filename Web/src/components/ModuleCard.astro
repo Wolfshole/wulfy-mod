@@ -1,0 +1,109 @@
+---
+interface Props {
+    title: string;
+    description?: string;
+    enabled?: boolean;
+    danger?: boolean;
+}
+
+const {
+    title,
+    description = "",
+    enabled = false,
+    danger = false
+} = Astro.props;
+---
+
+<div class:list={["module-card", { danger }]}>
+    <div class="header">
+        <h3>{title}</h3>
+        {description && <p>{description}</p>}
+    </div>
+    <div class="toggle">
+        <span class:list={["status", { on: enabled }]}>
+            {enabled ? "Aktiviert" : "Deaktiviert"}
+        </span>
+        <button class="switch" data-enabled={enabled}>
+            <span></span>
+        </button>
+    </div>
+</div>
+
+<style>
+    .module-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        transition: border-color 0.15s;
+    }
+
+    .module-card:hover {
+        border-color: var(--accent);
+    }
+
+    .module-card.danger {
+        border-color: rgba(239, 68, 68, 0.4);
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .header h3 {
+        font-size: 1.05rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .header p {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+    }
+
+    .toggle {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .status {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .status.on {
+        color: var(--success);
+    }
+
+    .switch {
+        width: 44px;
+        height: 24px;
+        border-radius: 999px;
+        background: #2a3040;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        transition: background 0.2s;
+    }
+
+    .switch span {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        transition: transform 0.2s;
+    }
+
+    .switch[data-enabled="true"] {
+        background: var(--accent);
+    }
+
+    .switch[data-enabled="true"] span {
+        transform: translateX(20px);
+    }
+</style>

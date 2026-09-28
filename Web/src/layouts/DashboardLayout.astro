@@ -1,0 +1,52 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Sidebar from "../components/Sidebar.astro";
+import TopBar from "../components/TopBar.astro";
+import Footer from "../components/Footer.astro";
+import { getSession } from "../lib/auth";
+import { getAvatarUrl } from "../lib/discord";
+
+const session = getSession(Astro.cookies);
+if (!session) return Astro.redirect('/login');
+if (!session.selectedGuildId) return Astro.redirect('/dashboard/servers');
+
+interface Props {
+    title?: string;
+}
+
+const { title = "Dashboard – Wulf Mod Bot" } = Astro.props;
+
+const userName = session.username;
+const userAvatar = getAvatarUrl(session.id, session.avatar);
+---
+
+<BaseLayout title={title}>
+    <Sidebar />
+    <div class="content-wrapper">
+        <TopBar
+            serverName="Wulf Server"
+            userName={userName}
+            userAvatar={userAvatar}
+        />
+        <main>
+            <slot />
+        </main>
+        <Footer variant="dashboard" />
+    </div>
+</BaseLayout>
+
+<style>
+    .content-wrapper {
+        margin-left: 240px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    main {
+        flex: 1;
+        padding: 2rem;
+        max-width: 1200px;
+        width: 100%;
+    }
+</style>

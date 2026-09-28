@@ -1,0 +1,82 @@
+---
+const features = [
+    { icon: "👋", title: "Willkommens-Modul", description: "Begrüße neue Mitglieder automatisch mit individuellen Embeds." },
+    { icon: "🛡️", title: "Moderation", description: "Warns, Bans, Kicks und Logs – alles zentral verwaltet." },
+    { icon: "🎫", title: "Ticket-System", description: "Professioneller Support für deine Community." },
+    { icon: "📊", title: "Statistiken", description: "Behalte den Überblick über Aktivität und Wachstum." },
+    { icon: "🔔", title: "Benachrichtigungen", description: "Erhalte Updates zu wichtigen Events in Echtzeit." },
+    { icon: "🎨", title: "Individuell", description: "Passe Farben, Texte und Embeds komplett an." },
+    { icon: "⚙️", title: "Rollen-System", description: "Vergib automatisch Rollen bei Beitritt oder Reaktionen." },
+    { icon: "🔒", title: "Sicherheit", description: "Discord-OAuth2 schützt dein Dashboard vor Fremdzugriffen." }
+];
+---
+
+<section id="features" class="features">
+    <h2>Alles was dein Server braucht</h2>
+    <p class="subtitle">Ein Dashboard. Alle Funktionen. Keine Kompromisse.</p>
+    <div class="feature-grid">
+        {features.map(f => (
+            <div class="feature-card">
+                <div class="icon">{f.icon}</div>
+                <h3>{f.title}</h3>
+                <p>{f.description}</p>
+            </div>
+        ))}
+    </div>
+</section>
+
+<style>
+    .features {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+    }
+
+    .features h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        margin-bottom: 3rem;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .feature-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.75rem;
+        transition: all 0.2s;
+    }
+
+    .feature-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
+    }
+
+    .feature-card .icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+</style>

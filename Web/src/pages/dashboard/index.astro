@@ -1,0 +1,45 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import ModuleCard from "../../components/ModuleCard.astro";
+---
+
+<DashboardLayout title="Dashboard – Wulf Mod Bot">
+    <div class="page-header">
+        <h1>Willkommen</h1>
+        <p>Verwalte deinen Server und alle Module zentral.</p>
+    </div>
+
+    <ModuleCard
+        title="Willkommens-Modul"
+        description="Nachrichten senden, wenn User den Server betreten oder verlassen."
+        enabled={false}
+    />
+
+    <ModuleCard
+        title="Moderations-Modul"
+        description="Warns, Bans, Kicks und Logs für deinen Server."
+        enabled={true}
+    />
+
+    <ModuleCard
+        title="Ticket-System"
+        description="Support-Tickets für deine Community."
+        enabled={false}
+    />
+</DashboardLayout>
+
+<style>
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .page-header p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+</style>

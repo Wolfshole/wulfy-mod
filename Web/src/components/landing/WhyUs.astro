@@ -1,0 +1,62 @@
+---
+const reasons = [
+    { icon: "⚡", title: "Blitzschnell", text: "Dank Astro SSR laden die Seiten in Millisekunden." },
+    { icon: "🔐", title: "Sicher", text: "Discord-Login schützt dein Dashboard vor Fremdzugriffen." },
+    { icon: "💸", title: "Kostenlos", text: "Alle Basisfunktionen sind für immer gratis." },
+    { icon: "🧩", title: "Erweiterbar", text: "Eigene Module können jederzeit integriert werden." }
+];
+---
+
+<section class="why-us">
+    <h2>Warum Wulf Mod Bot?</h2>
+    <div class="grid">
+        {reasons.map(r => (
+            <div class="reason">
+                <div class="icon">{r.icon}</div>
+                <h3>{r.title}</h3>
+                <p>{r.text}</p>
+            </div>
+        ))}
+    </div>
+</section>
+
+<style>
+    .why-us {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+    }
+
+    .why-us h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .reason {
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .reason .icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .reason h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .reason p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+</style>

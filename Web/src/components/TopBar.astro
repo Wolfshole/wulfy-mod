@@ -1,0 +1,62 @@
+---
+interface Props {
+    serverName?: string;
+    userName?: string;
+    userAvatar?: string;
+}
+
+const {
+    serverName = "Wulf Server",
+    userName = "Admin",
+    userAvatar = "https://cdn.discordapp.com/embed/avatars/0.png"
+} = Astro.props;
+---
+
+<header class="topbar">
+    <div class="server">
+        <span class="dot"></span>
+        <span>{serverName}</span>
+    </div>
+    <div class="user">
+        <img src={userAvatar} alt={userName} />
+        <span>{userName}</span>
+    </div>
+</header>
+
+<style>
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-sidebar);
+    }
+
+    .server {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 8px var(--success);
+    }
+
+    .user {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .user img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+</style>

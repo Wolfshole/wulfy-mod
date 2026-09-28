@@ -1,0 +1,68 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Logo from "../components/Logo.astro";
+---
+
+<BaseLayout title="Login – Wulf Mod Bot">
+    <main class="login-page">
+        <div class="login-card">
+            <Logo size={80} showText={false} href="#" />
+            <h1>Wulf Mod Bot</h1>
+            <p>Melde dich mit deinem Discord-Account an, um deinen Server zu verwalten.</p>
+            <a href="/api/auth/discord" class="discord-btn">
+                Mit Discord anmelden
+            </a>
+        </div>
+    </main>
+</BaseLayout>
+
+<style>
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: radial-gradient(circle at top, rgba(37, 99, 235, 0.15), transparent 60%);
+    }
+
+    .login-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 3rem 2.5rem;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-card h1 {
+        font-size: 1.5rem;
+        margin: 1.25rem 0 0.5rem;
+    }
+
+    .login-card p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 2rem;
+    }
+
+    .discord-btn {
+        display: inline-block;
+        width: 100%;
+        padding: 0.85rem 1.5rem;
+        background: var(--accent);
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 0 24px var(--accent-glow);
+        transition: all 0.15s;
+    }
+
+    .discord-btn:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+</style>

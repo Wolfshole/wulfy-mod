@@ -1,0 +1,100 @@
+---
+import { getSession } from "../../lib/auth";
+
+const session = getSession(Astro.cookies);
+const isLoggedIn = !!session;
+const ctaHref = isLoggedIn ? "/dashboard" : "/login";
+const ctaLabel = isLoggedIn ? "Zum Dashboard →" : "Jetzt starten →";
+---
+
+<section class="hero">
+    <div class="badge">🚀 Neu: Version 2.0 ist da</div>
+    <h1>
+        Moderation für deinen Discord-Server
+        <span class="highlight">einfach & mächtig</span>.
+    </h1>
+    <p>
+        Wulf Mod Bot bringt Warns, Bans, Kicks, Tickets und Logs
+        an einen Ort – übersichtlich, schnell und kostenlos.
+    </p>
+    <div class="cta-group">
+        <a href={ctaHref} class="btn-primary">{ctaLabel}</a>
+        <a href="#features" class="btn-secondary">Features entdecken</a>
+    </div>
+</section>
+
+<style>
+    .hero {
+        text-align: center;
+        padding: 6rem 2rem 4rem;
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    .badge {
+        display: inline-block;
+        background: rgba(37, 99, 235, 0.15);
+        border: 1px solid rgba(37, 99, 235, 0.4);
+        color: #93c5fd;
+        padding: 0.35rem 1rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        line-height: 1.15;
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.02em;
+    }
+
+    .highlight {
+        background: linear-gradient(90deg, #2563eb, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .cta-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 0.85rem 1.75rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.15s;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 0 24px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        border: 1px solid var(--border);
+        color: var(--text);
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-hover);
+    }
+</style>

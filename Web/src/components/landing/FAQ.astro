@@ -1,0 +1,99 @@
+---
+const faqs = [
+    {
+        q: "Ist Wulf Mod Bot wirklich kostenlos?",
+        a: "Ja! Alle Basisfunktionen sind für immer kostenlos. Premium-Features werden vielleicht später dazu kommen."
+    },
+    {
+        q: "Wie melde ich mich an?",
+        a: "Ganz einfach mit deinem Discord-Account. Klick auf 'Login' und autorisiere die App."
+    },
+    {
+        q: "Brauche ich Programmierkenntnisse?",
+        a: "Nein. Alles wird über das Dashboard gesteuert – kein Code notwendig."
+    },
+    {
+        q: "Kann ich den Bot auf mehreren Servern nutzen?",
+        a: "Ja, du kannst beliebig viele Server gleichzeitig verwalten."
+    },
+    {
+        q: "Was passiert mit meinen Daten?",
+        a: "Wir speichern nur das Nötigste und geben nichts an Dritte weiter. Details in der Datenschutzerklärung."
+    }
+];
+---
+
+<section class="faq">
+    <h2>Häufige Fragen</h2>
+    <div class="faq-list">
+        {faqs.map(f => (
+            <details>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+            </details>
+        ))}
+    </div>
+</section>
+
+<style>
+    .faq {
+        max-width: 750px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+    }
+
+    .faq h2 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    details {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        transition: border-color 0.15s;
+    }
+
+    details[open] {
+        border-color: var(--accent);
+    }
+
+    summary {
+        cursor: pointer;
+        font-weight: 600;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    summary::after {
+        content: "+";
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        transition: transform 0.2s;
+    }
+
+    details[open] summary::after {
+        content: "−";
+    }
+
+    details p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-top: 0.75rem;
+    }
+</style>

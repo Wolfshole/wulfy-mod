@@ -1,0 +1,58 @@
+---
+interface Props {
+    size?: number;
+    showText?: boolean;
+    href?: string;
+}
+
+const {
+    size = 40,
+    showText = true,
+    href = "/"
+} = Astro.props;
+---
+
+<a href={href} class="logo">
+    <img src="/logo.png" alt="Wulf Mod Bot" width={size} height={size} />
+    {showText && (
+        <div class="text">
+            <span class="brand">Wulf</span>
+            <span class="sub">MOD BOT</span>
+        </div>
+    )}
+</a>
+
+<style>
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        text-decoration: none;
+    }
+
+    img {
+        border-radius: 50%;
+        object-fit: cover;
+        filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+    }
+
+    .text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+    }
+
+    .brand {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.02em;
+    }
+
+    .sub {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #3b82f6;
+        letter-spacing: 0.15em;
+    }
+</style>
