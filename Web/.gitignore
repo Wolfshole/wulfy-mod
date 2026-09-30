@@ -27,6 +27,3 @@ env.d.ts
 
 # VS
 .vscode/
-
-# Logo
-public/

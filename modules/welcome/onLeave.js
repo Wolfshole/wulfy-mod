@@ -1,6 +1,5 @@
 async function onLeave(member, db) {
   try {
-    // Einstellungen für das Welcome-Modul laden
     const [rows] = await db.execute(
       "SELECT settings_json, enabled FROM guild_settings WHERE guild_id = ? AND module_name = ?",
       [member.guild.id, "welcome"],
@@ -10,20 +9,19 @@ async function onLeave(member, db) {
 
     const settings = rows[0].settings_json;
 
-    // Leave-Nachricht senden
     if (settings.leaveChannelId && settings.leaveMessage) {
       const channel = member.guild.channels.cache.get(settings.leaveChannelId);
       if (channel) {
         const message = settings.leaveMessage
-          .replace("{user}", member.user.tag)
-          .replace("{server}", member.guild.name)
-          .replace("{membercount}", member.guild.memberCount);
+          .replace(/{user}/g, member.user.tag)
+          .replace(/{server}/g, member.guild.name)
+          .replace(/{membercount}/g, member.guild.memberCount);
 
         await channel.send(message);
       }
     }
   } catch (err) {
-    console.error("❌ Fehler im Welcome-Modul (Leave):", err.message);
+    console.error("❌ Welcome-Modul (Leave):", err.message);
   }
 }
 

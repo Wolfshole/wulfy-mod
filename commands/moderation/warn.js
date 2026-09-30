@@ -22,13 +22,15 @@ module.exports = {
     const reason = interaction.options.getString("reason");
     const member = interaction.guild.members.cache.get(target.id);
 
-    // In die Datenbank schreiben
-    await db.execute(
+    // 1. In DB speichern
+    const [result] = await db.execute(
       "INSERT INTO warns (guild_id, user_id, moderator_id, reason) VALUES (?, ?, ?, ?)",
       [interaction.guild.id, target.id, interaction.user.id, reason],
     );
 
-    // Log speichern
+    const warnId = result.insertId;
+
+    // 2. Log speichern
     await logAction(
       db,
       interaction.guild.id,
@@ -38,12 +40,13 @@ module.exports = {
       reason,
     );
 
-    // DM an den User
+    // 3. DM an User
     if (member) {
       const dmEmbed = new EmbedBuilder()
         .setColor(0xef4444)
         .setTitle(`⚠️ Verwarnung auf ${interaction.guild.name}`)
         .addFields(
+          { name: "Warn-ID", value: `#${warnId}`, inline: true },
           { name: "Grund", value: reason },
           { name: "Moderator", value: interaction.user.tag },
         )
@@ -52,11 +55,13 @@ module.exports = {
       await member.send({ embeds: [dmEmbed] }).catch(() => {});
     }
 
-    // Antwort im Channel
+    // 4. Antwort im Channel
     const replyEmbed = new EmbedBuilder()
       .setColor(0xef4444)
       .setDescription(
-        `⚠️ **${target.tag}** wurde verwarnt.\n**Grund:** ${reason}`,
+        `⚠️ **${target.tag}** wurde verwarnt.\n` +
+          `**Warn-ID:** #${warnId}\n` +
+          `**Grund:** ${reason}`,
       )
       .setTimestamp();
 

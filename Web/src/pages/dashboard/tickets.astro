@@ -1,0 +1,428 @@
+---
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import MultiSelect from "../../components/MultiSelect.astro";
+import { getSession } from "../../lib/auth";
+import pool from "../../lib/db";
+
+const session = getSession(Astro.cookies);
+const guildId = session?.selectedGuildId ?? "";
+
+let settings = {
+    supportRoleIds: [],
+    ticketCategoryId: "",
+    logChannelId: "",
+    transcriptChannelId: "",
+    welcomeMessage: "Danke für dein Ticket! Ein Teammitglied wird sich bald um dich kümmern.",
+    maxTicketsPerUser: 1,
+    dmOnClose: true
+};
+let enabled = false;
+let dbError = null;
+
+try {
+    const [rows] = await pool.execute(
+        'SELECT settings_json, enabled FROM guild_settings WHERE guild_id = ? AND module_name = ?',
+        [guildId, 'tickets']
+    );
+    if (rows[0]) {
+        settings = { ...settings, ...rows[0].settings_json };
+        enabled = !!rows[0].enabled;
+    }
+} catch (err) {
+    console.error(err);
+    dbError = err.message;
+}
+---
+
+<DashboardLayout title="Tickets – Wulf Mod Bot">
+    <div class="page-header">
+        <div>
+            <h1>Tickets</h1>
+            <p>Erstelle ein Support-System mit privaten Kanälen für deine Community.</p>
+        </div>
+        <a href="/docs/tickets" class="doc-link">📖 Dokumentation</a>
+    </div>
+
+    {dbError && <div class="error-banner">⚠️ DB-Fehler: {dbError}</div>}
+    <div id="role-warning" class="warning-banner" style="display: none;"></div>
+
+    <div class="module-status" data-enabled={enabled}>
+        <div class="status-text">
+            <strong>Modul {enabled ? "aktiviert" : "deaktiviert"}</strong>
+            <span>{enabled ? "Das Modul ist einsatzbereit." : "Aktuell ist dieses Modul deaktiviert."}</span>
+        </div>
+        <button id="toggle-module" class="toggle-btn">
+            {enabled ? "Deaktivieren" : "Aktivieren"}
+        </button>
+    </div>
+
+    <section class="card">
+        <h2>Support-Team</h2>
+        <div class="grid-2">
+            <div class="field">
+                <label>Support-Rollen</label>
+                <p class="hint">Rollen, die Zugriff auf alle Tickets haben</p>
+                <MultiSelect id="support-roles" />
+            </div>
+            <div class="field">
+                <label>Max. Tickets pro Nutzer</label>
+                <p class="hint">Wie viele offene Tickets ein Nutzer gleichzeitig haben darf</p>
+                <input type="number" id="max-tickets" min="1" max="10" value={settings.maxTicketsPerUser} />
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Kanäle & Kategorien</h2>
+        <div class="grid-2">
+            <div class="field">
+                <label>Ticket-Kategorie</label>
+                <p class="hint">In dieser Kategorie werden neue Ticket-Kanäle erstellt</p>
+                <select id="ticket-category">
+                    <option value="">Keine Auswahl</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Log-Kanal</label>
+                <p class="hint">Kanal, in dem Ticket-Aktionen protokolliert werden</p>
+                <select id="log-channel">
+                    <option value="">Keine Auswahl</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Transkript-Kanal</label>
+                <p class="hint">Kanal, in dem geschlossene Tickets als Transkript gespeichert werden</p>
+                <select id="transcript-channel">
+                    <option value="">Keine Auswahl</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Nachrichten</h2>
+        <div class="field">
+            <label>Willkommensnachricht im Ticket</label>
+            <p class="hint">Diese Nachricht wird im Ticket-Kanal gepostet, wenn es erstellt wird</p>
+            <textarea id="welcome-message" placeholder="Danke für dein Ticket! ...">{settings.welcomeMessage}</textarea>
+        </div>
+        <div class="field">
+            <label>DM bei Schließung</label>
+            <p class="hint">Nutzer erhalten eine DM, wenn ihr Ticket geschlossen wird</p>
+            <label class="switch">
+                <input type="checkbox" id="dm-on-close" checked={settings.dmOnClose} />
+                <span></span>
+            </label>
+        </div>
+    </section>
+
+    <div class="actions">
+        <button id="save-btn" class="btn-primary">💾 Speichern</button>
+        <span id="save-status" class="status"></span>
+    </div>
+</DashboardLayout>
+
+<script define:vars={{ guildId, initialSettings: settings, initialEnabled: enabled }}>
+    function getMultiSelect(id) {
+        return document.querySelector(`.multi-select[data-id="${id}"]`);
+    }
+
+    async function loadRoles() {
+        const res = await fetch(`/api/roles?guild_id=${guildId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        const el = getMultiSelect('support-roles');
+        el.setOptions(data.roles);
+        el.setValues(initialSettings.supportRoleIds || []);
+
+        if (data.blockedRoles && data.blockedRoles.length > 0) {
+            const warn = document.getElementById('role-warning');
+            warn.style.display = 'block';
+            warn.textContent = `⚠️ ${data.blockedRoles.length} Rolle(n) sind über der Bot-Rolle und können nicht verwendet werden. Verschiebe die Bot-Rolle im Discord-Server höher.`;
+        }
+    }
+
+    async function loadChannels() {
+        const res = await fetch(`/api/channels?guild_id=${guildId}`);
+        if (!res.ok) return;
+        const channels = await res.json();
+
+        const textChannels = channels.filter(c => c.type === 'text');
+        const categories = channels.filter(c => c.type === 'category');
+
+        const fillSelect = (id, list, current) => {
+            const select = document.getElementById(id);
+            list.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.id;
+                opt.textContent = item.name;
+                select.appendChild(opt);
+            });
+            select.value = current || "";
+        };
+
+        fillSelect('ticket-category', categories, initialSettings.ticketCategoryId);
+        fillSelect('log-channel', textChannels, initialSettings.logChannelId);
+        fillSelect('transcript-channel', textChannels, initialSettings.transcriptChannelId);
+    }
+
+    document.getElementById('toggle-module').addEventListener('click', () => {
+        saveSettings(!initialEnabled);
+    });
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+        saveSettings(initialEnabled);
+    });
+
+    async function saveSettings(enabledState) {
+        const settings = {
+            supportRoleIds: getMultiSelect('support-roles').getValues(),
+            ticketCategoryId: document.getElementById('ticket-category').value,
+            logChannelId: document.getElementById('log-channel').value,
+            transcriptChannelId: document.getElementById('transcript-channel').value,
+            welcomeMessage: document.getElementById('welcome-message').value,
+            maxTicketsPerUser: Number(document.getElementById('max-tickets').value),
+            dmOnClose: document.getElementById('dm-on-close').checked
+        };
+
+        const statusEl = document.getElementById('save-status');
+        const res = await fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                guild_id: guildId,
+                module: 'tickets',
+                settings,
+                enabled: enabledState
+            })
+        });
+
+        if (res.ok) {
+            statusEl.textContent = '✅ Gespeichert';
+            statusEl.style.color = 'var(--success)';
+            setTimeout(() => statusEl.textContent = '', 2000);
+            if (enabledState !== initialEnabled) window.location.reload();
+        } else {
+            statusEl.textContent = '❌ Fehler beim Speichern';
+            statusEl.style.color = 'var(--danger)';
+        }
+    }
+
+    loadRoles();
+    loadChannels();
+</script>
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.35rem;
+        font-weight: 700;
+    }
+
+    .page-header p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .doc-link {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        color: var(--accent);
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.15s;
+    }
+
+    .doc-link:hover {
+        background: var(--accent);
+        color: white;
+    }
+
+    .error-banner {
+        background: var(--danger-bg);
+        border: 1px solid var(--danger);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        color: var(--danger);
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .warning-banner {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.5);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        color: var(--warning);
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .module-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--danger-bg);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .module-status[data-enabled="true"] {
+        background: var(--success-bg);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .status-text strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--danger);
+        font-size: 0.95rem;
+    }
+
+    .module-status[data-enabled="true"] .status-text strong {
+        color: var(--success);
+    }
+
+    .status-text span {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .toggle-btn {
+        padding: 0.6rem 1.25rem;
+        border-radius: 8px;
+        border: 1px solid var(--accent);
+        background: transparent;
+        color: var(--accent);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 0.85rem;
+    }
+
+    .toggle-btn:hover {
+        background: var(--accent);
+        color: white;
+    }
+
+    .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .card h2 {
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+        font-weight: 600;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .field label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 0.35rem;
+        font-size: 0.9rem;
+    }
+
+    .hint {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        margin-bottom: 0.6rem;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 80px;
+        resize: vertical;
+    }
+
+    .switch {
+        display: inline-block;
+        position: relative;
+        width: 44px;
+        height: 24px;
+        cursor: pointer;
+    }
+
+    .switch input { display: none; }
+
+    .switch span {
+        position: absolute;
+        inset: 0;
+        background: #2a3040;
+        border-radius: 999px;
+        transition: background 0.2s;
+    }
+
+    .switch span::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        transition: transform 0.2s;
+    }
+
+    .switch input:checked + span {
+        background: var(--accent);
+    }
+
+    .switch input:checked + span::after {
+        transform: translateX(20px);
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary:hover {
+        background: var(--accent-hover);
+    }
+
+    .status {
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+        .grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
